@@ -1,35 +1,45 @@
-import { LoginAPI } from '@/services/api';
+import { LoginAPI, RegisterAPI } from '@/services/api';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Divider, Form, Input } from 'antd';
+import { App, Button, Checkbox, Divider, Form, Input } from 'antd';
 import { useState } from 'react';
+import { redirect, useNavigate } from 'react-router-dom';
 
 type FieldType = {
-    username?: string;
-    password?: string;
-    email?: string;
-    phone?: string;
+    fullName: string;
+    password: string;
+    email: string;
+    phone: string;
 };
 
 
 
 const RegisterPage = () => {
-    const [isSubmit, setIsSubmit ] = useState<boolean>(false);
+    const [isSubmit, setIsSubmit] = useState<boolean>(false);
+    const navigate = useNavigate()
+    const {message} = App.useApp()
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmit(true);
-        console.log('Success:', values);
+        const { email, fullName, password, phone } = values
+        const res = await RegisterAPI(email, password, fullName, phone)
+        ;
+        if(res.data){
+            message.success("Đăng kí thành công!")
+            navigate('/login');
+         
+        }else {
+            message.error(res.message)
+        }
         setIsSubmit(false);
-        const res = await LoginAPI("admin@gmail.com", "1234561");
-        console.log(res);
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
         console.log('Failed:', errorInfo);
-        
+
     };
     return (
         <div className='flex justify-center mt-5'>
-            <div className='p-8 bg-white border border-gray-200 rounded-md shadow dark:bg-gray-800 dark:border-gray-700 w-1/3'>
-                <div className='text-3xl font-semibold'>Register Account</div>
+            <div className='p-8 bg-white border border-gray-200 rounded-md shadow dark:bg-gray-800 dark:border-gray-700 w-full lg:w-1/3'>
+                <div className='text-3xl font-semibold'>Đăng kí tài khoản</div>
                 <hr className='my-5' />
 
                 <Form
@@ -44,9 +54,9 @@ const RegisterPage = () => {
                     autoComplete="off"
                 >
                     <Form.Item<FieldType>
-                        label="Username"
-                        name="username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
+                        label="Họ và tên"
+                        name="fullName"
+                        rules={[{ required: true, message: 'Vui lòng điền họ và tên!' }]}
                     >
                         <Input />
                     </Form.Item>
@@ -54,30 +64,30 @@ const RegisterPage = () => {
                     <Form.Item<FieldType>
                         label="Email"
                         name="email"
-                        rules={[{ required: true, message: 'Please input your email!' }]}
+                        rules={[{ required: true, message: 'Vui lòng điền email!' }]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item<FieldType>
-                        label="Password"
+                        label="Mật khẩu"
                         name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
+                        rules={[{ required: true, message: 'Vui lòng điền mật khẩu!' }]}
                     >
                         <Input.Password />
                     </Form.Item>
                     <Form.Item<FieldType>
-                        label="Phone number"
+                        label="Điện thoại"
                         name="phone"
-                        rules={[{ required: true, message: 'Please input your phone!' }]}
+                        rules={[{ required: true, message: 'Vui lòng điền số điện thoại!' }]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item label={null}>
-                        <Button type="primary" htmlType="submit" loading = {isSubmit}>
-                            Register
+                        <Button type="primary" htmlType="submit" loading={isSubmit}>
+                            Đăng kí
                         </Button>
                         <Divider>Or</Divider>
-                        <span className='flex justify-center'>already have an account ?<a href='/login' className='text-blue-500 ml-1'>Login</a></span>
+                        <span className='flex justify-center'>Đã có tài khoản rồi ?<a href='/login' className='text-blue-500 ml-1'>Đăng nhập</a></span>
                     </Form.Item>
                 </Form>
             </div>
