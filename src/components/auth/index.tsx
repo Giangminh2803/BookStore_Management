@@ -1,7 +1,7 @@
 import React from "react"
 import { useCurrentApp } from "components/context/app.context"
 import { Button, Result } from "antd"
-import { useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 
 interface IProps {
     children: React.ReactNode
@@ -15,9 +15,9 @@ export const ProtectedRoute = (props: IProps) => {
             <div>
                 <Result
                     status="404"
-                    title="401"
-                    subTitle="Sorry, you are not authorized to access this page."
-                    extra={<Button type="primary">Back Home</Button>}
+                    title="Not Login"
+                    subTitle="Sorry, you are not login to access this page."
+                    extra={<Button  type="primary"><Link to={'/login'}>Đăng nhập</Link></Button>}
                 />
             </div>
         )
