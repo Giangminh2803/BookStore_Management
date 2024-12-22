@@ -16,9 +16,10 @@ export const RegisterAPI = (email: string, password: string, fullName: string, p
 
 export const fetchAccountAPI = () => {
     const urlBackend = "/api/v1/auth/account"
-    return axios.get<IBackendRes<IFetchAccount>>(urlBackend, {
-        headers: {
-            delay: 1000
-        }
-    })
+    return axios.get<IBackendRes<IFetchAccount>>(urlBackend)
+}
+
+export const logoutAPI = () => {
+    const urlBackend = "/api/v1/auth/logout"
+    return axios.post<IBackendRes<IRegister>>(urlBackend)
 }
