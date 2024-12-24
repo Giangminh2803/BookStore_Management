@@ -12,14 +12,16 @@ import BookPage from 'pages/client/book'
 import LoginPage from 'pages/client/auth/login'
 import RegisterPage from 'pages/client/auth/register'
 import HomePage from 'pages/client/home'
-import { App } from 'antd';
+import { App, ConfigProvider } from 'antd';
 import { AppProvider } from 'components/context/app.context';
 import { ProtectedRoute } from '@/components/auth';
 import LayoutAdmin from 'components/layout/layout.admin';
-import DashBoardPage from 'components/admin/dashboard';
-import ManageBookPage from 'components/admin/manage.book';
-import ManageUserPage from 'components/admin/manage.user';
-import ManageOrderPage from 'components/admin/manage.order';
+import DashBoardPage from '@/pages/admin/dashboard';
+import ManageBookPage from '@/pages/admin/manage.book';
+import ManageUserPage from '@/pages/admin/manage.user';
+import ManageOrderPage from '@/pages/admin/manage.order';
+import enUS from 'antd/locale/en_US';
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -109,7 +111,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App>
       <AppProvider>
+        <ConfigProvider locale={enUS}>
         <RouterProvider router={router} />
+        </ConfigProvider>
       </AppProvider>
     </App>
   </StrictMode>,
