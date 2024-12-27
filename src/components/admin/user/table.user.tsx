@@ -1,12 +1,15 @@
-import { getUsersAPI } from '@/services/api';
-import { dateRangeValidate } from '@/services/helper';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable, TableDropdown } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
-import dayjs from 'dayjs';
-import { useRef, useState } from 'react';
-import UserDetail from './detail.user';
+import { deleteUserAPI, getUsersAPI } from '@/services/api'
+import { dateRangeValidate, FORMATE_DATE } from '@/services/helper'
+import { DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons'
+import type { ActionType, ProColumns } from '@ant-design/pro-components'
+import { ProTable } from '@ant-design/pro-components'
+import { Button, message, notification, Popconfirm } from 'antd'
+import dayjs from 'dayjs'
+import { useRef, useState } from 'react'
+import UserDetail from './detail.user'
+import ModalUser from './modal.user'
+import ModalAddUserBulk from './modal.add.bulk'
+import { CSVLink } from 'react-csv'
 
 type TSearch = {
     fullName: string
@@ -15,10 +18,9 @@ type TSearch = {
     createdAtRange: string
 }
 
-
-
 const TableUser = () => {
-    const actionRef = useRef<ActionType>();
+    const actionRef = useRef<ActionType>()
+
     const [meta, setMeta] = useState({
         current: 1,
         pageSize: 5,
@@ -26,12 +28,35 @@ const TableUser = () => {
         total: 0
     })
     const [openDetail, setOpenDetail] = useState<boolean>(false)
-    const [dataDetail, setDataDetail] = useState<IUser|null>(null)
+    const [dataDetail, setDataDetail] = useState<IUser | null>(null)
+    const [openModal, setOpenModal] = useState<boolean>(false)
+    const [isOpenBulk, setIsOpenBulk] = useState<boolean>(false)
+    const [dataCurrentTable, setDataCurrentTable] = useState<IUser[]>([])
 
+    const reloadTable = () => {
+        actionRef.current?.reload()
+    }
     const handleOpenDetail = (dataUser: IUser) => {
         setOpenDetail(true)
         setDataDetail(dataUser)
-        console.log(dataDetail)
+
+    }
+    const confirmDeleteUser = async (id: string) => {
+        const res = await deleteUserAPI(id)
+        if (res.data) {
+            message.success('Xoá người dùng thành công')
+            reloadTable()
+        } else {
+            notification.error({
+                message: "Đã có lỗi xảy ra!",
+                description: res.error
+            })
+        }
+
+    }
+
+    const cancel = () => {
+        // message.error('Click on No')
     }
     const columns: ProColumns<IUserTable>[] = [
         {
@@ -43,14 +68,14 @@ const TableUser = () => {
             title: '_id',
             dataIndex: '_id',
             hideInSearch: true,
-            render(dom, entity) {
+            render(_dom, entity) {
                 return (
                     <a onClick={() => handleOpenDetail(entity)} className='cursor-pointer text-blue-600'>
                         {entity._id}
                     </a>
                 )
             }
-    
+
         },
         {
             title: 'Fullname',
@@ -60,7 +85,7 @@ const TableUser = () => {
             title: 'Email',
             dataIndex: 'email',
             copyable: true,
-            
+
         },
         {
             title: 'Created At',
@@ -73,10 +98,10 @@ const TableUser = () => {
             hideInSearch: true,
             dataIndex: 'createdAt',
             sorter: true,
-            render(dom, entity) {
+            render(_dom, entity) {
                 return (
                     <span >
-                        {dayjs(entity.createdAt).format('DD-MM-YYYY')}
+                        {dayjs(entity.createdAt).format(FORMATE_DATE)}
                     </span>
                 )
             }
@@ -84,29 +109,55 @@ const TableUser = () => {
         {
             hideInSearch: true,
             title: 'Action',
-            render: () => <div className='flex gap-3 cursor-pointer'>
-                <span><EditOutlined style={{ color: 'orange' }} /></span>
-                <span><DeleteOutlined style={{ color: 'red' }} /></span>
-    
+            render: (_dom, entity) => <div className='flex gap-3 cursor-pointer'>
+                <span>
+                    <EditOutlined style={{ color: 'orange' }} />
+
+
+                </span>
+                <span>
+                    <Popconfirm
+                        title="Xoá người dùng"
+                        description="Bạn có chắc chắn muốn xoá người dùng này không?"
+                        onConfirm={() => confirmDeleteUser(entity._id)}
+                        onCancel={cancel}
+                        okText="Xoá"
+                        cancelText="Huỷ"
+                    >
+                        <DeleteOutlined style={{ color: 'red' }} />
+                    </Popconfirm>
+
+                </span>
+
             </div>
         },
-    
-    
-    ];
+
+
+    ]
     return (
         <>
-        <UserDetail
-        showDetail = {openDetail}
-        setShowDetail={setOpenDetail}
-        dataDetail={dataDetail}
-        
-        />
+            <UserDetail
+                showDetail={openDetail}
+                setShowDetail={setOpenDetail}
+                dataDetail={dataDetail}
+
+            />
+            <ModalUser
+                show={openModal}
+                setShow={setOpenModal}
+                reload={reloadTable}
+            />
+            <ModalAddUserBulk
+                isOpenBulk={isOpenBulk}
+                setIsOpenBulk={setIsOpenBulk}
+                refreshTable={reloadTable}
+            />
             <ProTable<IUserTable, TSearch>
                 columns={columns}
                 actionRef={actionRef}
                 cardBordered
 
-                request={async (params, sort, filter) => {
+                request={async (params, sort) => {
                     console.log(params, sort)
                     let query = `current=${params.current}&pageSize=${params.pageSize}`
                     if (params.fullName) {
@@ -115,20 +166,22 @@ const TableUser = () => {
                     if (params.email) {
                         query += `&email=/${params.email}/i`
                     }
-                    if(sort && sort.createdAt){
-                        
-                        query +=`&sort=${sort.createdAt === "ascend" ? "createdAt" : "-createdAt"}`
+                    query += `&sort=-createdAt`
+                    if (sort && sort.createdAt) {
+
+                        query += `&sort=${sort.createdAt === "ascend" ? "createdAt" : "-createdAt"}`
                     }
 
-                    const date = dateRangeValidate(params.createdAtRange);
+                    const date = dateRangeValidate(params.createdAtRange)
                     if (date) {
                         query += `&createdAt>=${date[0]}&createdAt<=${date[1]}`
                     }
 
-                    const res = await getUsersAPI(query);
-                    
+                    const res = await getUsersAPI(query)
+
                     if (res.data) {
                         setMeta(res.data.meta)
+                        setDataCurrentTable(res.data.result)
                     }
                     return {
                         data: res.data?.result,
@@ -165,9 +218,9 @@ const TableUser = () => {
                             return {
                                 ...values,
                                 created_at: [values.startTime, values.endTime],
-                            };
+                            }
                         }
-                        return values;
+                        return values
                     },
                 }}
 
@@ -176,10 +229,31 @@ const TableUser = () => {
                 toolBarRender={() => [
                     <Button
                         key="button"
+                        icon={<ExportOutlined />}
+                        // onClick={() =>
+                        //     setIsOpenBulk(true)
+                        // }
+
+                        type="primary"
+                    ><CSVLink data={dataCurrentTable} filename={`export-${dayjs().format(FORMATE_DATE)}-user`}> Export</CSVLink>
+
+                    </Button>,
+                    <Button
+                        key="button"
+                        icon={<ImportOutlined />}
+                        onClick={() =>
+                            setIsOpenBulk(true)
+                        }
+                        type="primary"
+                    >
+                        Import
+                    </Button>,
+                    <Button
+                        key="button"
                         icon={<PlusOutlined />}
-                        onClick={() => {
-                            actionRef.current?.reload();
-                        }}
+                        onClick={() =>
+                            setOpenModal(true)
+                        }
                         type="primary"
                     >
                         Add new
@@ -188,7 +262,7 @@ const TableUser = () => {
                 ]}
             />
         </>
-    );
-};
+    )
+}
 
-export default TableUser;
+export default TableUser
