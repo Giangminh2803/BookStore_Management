@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { Badge, Descriptions, Drawer } from 'antd';
+
+import { Avatar, Badge, Descriptions, Drawer } from 'antd';
 import { DescriptionsProps } from 'antd/lib';
 import dayjs from 'dayjs';
+import { FORMATE_DATE } from '@/services/helper';
 
 
 type Props = {
     showDetail: boolean,
     setShowDetail: (v: boolean) => void,
     dataDetail: IUser | null,
-
 }
 const UserDetail = (props: Props) => {
     const { showDetail, setShowDetail, dataDetail } = props
-
+    const avtURL = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${dataDetail?.avatar}`
 
     const showDrawer = () => {
         setShowDetail(true);
@@ -51,6 +51,12 @@ const UserDetail = (props: Props) => {
             span: 1,
         },
         {
+            key: '6',
+            label: 'Avatar',
+            children: <Avatar src={avtURL} size={40} ></Avatar>,
+            span: 1,
+        },
+        {
             key: '7',
             label: 'Status',
             children: <Badge status={dataDetail?.isActive === true ? "success" : "error"} text={dataDetail?.isActive === true ? "ACTIVATED" : "DEACTIVATED"} />,
@@ -58,7 +64,7 @@ const UserDetail = (props: Props) => {
         {
             key: '7',
             label: 'Created At',
-            children: dayjs(dataDetail?.createdAt).format('DD-MM-YYYY')
+            children: dayjs(dataDetail?.createdAt).format(FORMATE_DATE)
         },
 
 

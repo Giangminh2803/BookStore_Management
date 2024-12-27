@@ -35,6 +35,11 @@ declare global {
         email: string
         fullName: string
     }
+    interface IResponseBulk {
+        countSuccess: number
+        countError: number
+        detail: any
+    }
 
     interface IUser {
         email: string
