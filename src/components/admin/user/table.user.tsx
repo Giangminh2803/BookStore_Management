@@ -1,4 +1,3 @@
-import { deleteUserAPI, getUsersAPI } from '@/services/api'
 import { dateRangeValidate, FORMATE_DATE } from '@/services/helper'
 import { DeleteOutlined, EditOutlined, ExportOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons'
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
@@ -6,10 +5,13 @@ import { ProTable } from '@ant-design/pro-components'
 import { Button, message, notification, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
 import { useRef, useState } from 'react'
-import UserDetail from './detail.user'
-import ModalUser from './modal.user'
-import ModalAddUserBulk from './modal.add.bulk'
+
 import { CSVLink } from 'react-csv'
+import ModalUser from './modal/modal.add.user'
+import ModalAddUserBulk from './modal/modal.add.bulk'
+import UserDetail from './modal/modal.detail.user'
+import UpdateUser from './modal/modal.edit.user'
+import { deleteUserAPI, getUsersAPI } from '@/services/api/user/user.api'
 
 type TSearch = {
     fullName: string
@@ -28,6 +30,8 @@ const TableUser = () => {
         total: 0
     })
     const [openDetail, setOpenDetail] = useState<boolean>(false)
+    const [openUpdate, setOpenUpdate] = useState<boolean>(false)
+
     const [dataDetail, setDataDetail] = useState<IUser | null>(null)
     const [openModal, setOpenModal] = useState<boolean>(false)
     const [isOpenBulk, setIsOpenBulk] = useState<boolean>(false)
@@ -38,6 +42,11 @@ const TableUser = () => {
     }
     const handleOpenDetail = (dataUser: IUser) => {
         setOpenDetail(true)
+        setDataDetail(dataUser)
+
+    }
+    const handleOpenUpdate = (dataUser: IUser) => {
+        setOpenUpdate(true)
         setDataDetail(dataUser)
 
     }
@@ -110,7 +119,7 @@ const TableUser = () => {
             hideInSearch: true,
             title: 'Action',
             render: (_dom, entity) => <div className='flex gap-3 cursor-pointer'>
-                <span>
+                <span onClick={() => handleOpenUpdate(entity)}>
                     <EditOutlined style={{ color: 'orange' }} />
 
 
@@ -136,6 +145,13 @@ const TableUser = () => {
     ]
     return (
         <>
+            <UpdateUser
+                showDetail={openUpdate}
+                setShowDetail={setOpenUpdate}
+                dataDetail={dataDetail}
+                setDataDetail={setDataDetail}
+                reload={reloadTable}
+            />
             <UserDetail
                 showDetail={openDetail}
                 setShowDetail={setOpenDetail}
@@ -158,7 +174,7 @@ const TableUser = () => {
                 cardBordered
 
                 request={async (params, sort) => {
-                    console.log(params, sort)
+
                     let query = `current=${params.current}&pageSize=${params.pageSize}`
                     if (params.fullName) {
                         query += `&fullName=/${params.fullName}/i`
@@ -166,10 +182,12 @@ const TableUser = () => {
                     if (params.email) {
                         query += `&email=/${params.email}/i`
                     }
-                    query += `&sort=-createdAt`
+
                     if (sort && sort.createdAt) {
 
                         query += `&sort=${sort.createdAt === "ascend" ? "createdAt" : "-createdAt"}`
+                    } else {
+                        query += `&sort=-createdAt`
                     }
 
                     const date = dateRangeValidate(params.createdAtRange)

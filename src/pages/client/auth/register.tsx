@@ -1,8 +1,8 @@
-import { LoginAPI, RegisterAPI } from '@/services/api';
+import { RegisterAPI } from '@/services/api/auth/auth.api';
 import type { FormProps } from 'antd';
-import { App, Button, Checkbox, Divider, Form, Input } from 'antd';
+import { App, Button, Divider, Form, Input } from 'antd';
 import { useState } from 'react';
-import { redirect, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 
 type FieldType = {
     fullName: string;

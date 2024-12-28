@@ -1,57 +1,69 @@
-import { createUserAPI } from '@/services/api'
-import { App, Form, Input, Modal } from 'antd'
-import { FormProps } from 'antd/lib'
 
-type Props = {
-    show: boolean,
-    setShow: (v: boolean) => void,
-    reload: () => void,
-}
+import { updateUserAPI } from '@/services/api/user/user.api';
+import { App, Form, Input, Modal } from 'antd';
+import { FormProps } from 'antd/lib';
+import { useEffect } from 'react';
 
 type FieldType = {
     email: string
-    password: string
+    _id: string
     fullName: string
     phone: string
 }
-
-const ModalUser = (props: Props) => {
-    const { show, setShow, reload } = props
+type Props = {
+    showDetail: boolean,
+    setShowDetail: (v: boolean) => void,
+    dataDetail: IUser | null,
+    setDataDetail: (v: IUser | null) => void,
+    reload: () => void
+}
+const UpdateUser = (props: Props) => {
+    const { showDetail, setShowDetail, dataDetail, setDataDetail, reload } = props
     const [form] = Form.useForm()
     const { message, notification } = App.useApp()
-    
-
-    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-        console.log('Success:', values)
-        const { email, password, fullName, phone } = values
-        const user = await createUserAPI(email, password, fullName, phone)
-        if (user && user.data) {
-            message.success('Tạo mới user thành công!')
-            form.resetFields()
-            reload()
-
-        } else {
-            notification.error({
-                message: "Đã có lỗi!",
-                description: user.message
+    useEffect(() => {
+        if (dataDetail) {
+            form.setFieldsValue({
+                email: dataDetail.email,
+                fullName: dataDetail.fullName,
+                phone: dataDetail.phone,
+                _id: dataDetail._id
             })
         }
-        setShow(false)
+    }, [dataDetail])
+
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+
+        const { _id, fullName, phone } = values
+        const res = await updateUserAPI(_id, fullName, phone)
+        if (res && res.data) {
+            message.success('Sửa thông tin thành công!')
+            form.resetFields()
+            reload()
+        } else {
+            notification.error({
+                message: "Đã có lỗi xảy ra",
+                description: "Thay đổi thông tin không thành công!"
+
+            })
+        }
+        setShowDetail(false)
     }
 
     const onCancel = () => {
         form.resetFields()
-        setShow(false)
+        setDataDetail(null)
+        setShowDetail(false)
     }
 
     return (
         <>
             <Modal
-                title="Thêm mới người dùng"
-                open={show}
+                title="Sửa thông tin người dùng"
+                open={showDetail}
                 onOk={() => { form.submit() }}
                 onCancel={() => onCancel()}
-                okText="Tạo mới"
+                okText="Lưu thay đổi"
                 cancelText="Huỷ"
             >
                 <Form
@@ -70,17 +82,18 @@ const ModalUser = (props: Props) => {
                     <Form.Item<FieldType>
                         label="Email"
                         name="email"
+                        initialValue={dataDetail?.email}
                         rules={[{ type: 'email', required: true, message: 'Vui lòng nhập Email!' }]}
                     >
-                        <Input />
+                        <Input disabled />
                     </Form.Item>
 
                     <Form.Item<FieldType>
-                        label="Mật khẩu"
-                        name="password"
-                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+                        hidden
+                        name="_id"
+
                     >
-                        <Input.Password />
+                        <Input />
                     </Form.Item>
                     <Form.Item<FieldType>
                         label="Tên hiển thị"
@@ -103,4 +116,5 @@ const ModalUser = (props: Props) => {
     )
 }
 
-export default ModalUser
+
+export default UpdateUser

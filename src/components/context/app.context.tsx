@@ -1,4 +1,4 @@
-import { fetchAccountAPI } from "@/services/api";
+import { fetchAccountAPI } from "@/services/api/auth/auth.api";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ClockLoader } from "react-spinners";
 
