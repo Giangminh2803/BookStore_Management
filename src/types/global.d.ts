@@ -35,6 +35,9 @@ declare global {
         email: string
         fullName: string
     }
+    interface IUpdate{
+        data: any
+    }
     interface IResponseBulk {
         countSuccess: number
         countError: number
@@ -47,9 +50,9 @@ declare global {
         fullName: string
         role: string
         avatar: string
-        _id: string
-        isActive: boolean
-        createdAt: Date
+        _id?: string
+        isActive?: boolean
+        createdAt?: Date
     }
 
     interface IFetchAccount {
@@ -66,7 +69,20 @@ declare global {
         isActive: boolean
         createdAt: Date
         updatedAt: Date
-
     }
 
+    interface IBookTable {
+        _id: string
+        thumbnail: string
+        slider: any
+        mainText: string
+        author: string
+        price: number
+        sold: number
+        quantity: number
+        category: string
+        createdAt: Date
+        updatedAt: Date
+    }
 }
+

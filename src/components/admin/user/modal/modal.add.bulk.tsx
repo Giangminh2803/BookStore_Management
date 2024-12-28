@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Buffer } from 'buffer';
 import templateFile from '@/assets/template/users.xlsx?url'
 import Exceljs from 'exceljs'
-import { bulkCreateUserAPI } from '@/services/api';
+import { bulkCreateUserAPI } from '@/services/api/user/user.api';
 type IProps = {
   isOpenBulk: boolean,
   setIsOpenBulk: (v: boolean) => void,

@@ -1,5 +1,5 @@
 import { useCurrentApp } from '@/components/context/app.context';
-import {  LoginAPI, RegisterAPI } from '@/services/api';
+import { LoginAPI } from '@/services/api/auth/auth.api';
 import type { FormProps } from 'antd';
 import { App, Button, Divider, Form, Input } from 'antd';
 import { useState } from 'react';

@@ -14,7 +14,7 @@ import { Outlet } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useCurrentApp } from '../context/app.context';
 import type { MenuProps } from 'antd';
-import { logoutAPI } from '@/services/api';
+import { logoutAPI } from '@/services/api/auth/auth.api';
 type MenuItem = Required<MenuProps>['items'][number];
 
 const { Content, Footer, Sider } = Layout;

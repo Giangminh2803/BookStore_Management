@@ -7,7 +7,7 @@ import './app.header.scss';
 import { Link } from 'react-router-dom';
 import { useCurrentApp } from 'components/context/app.context';
 import { AntDesignOutlined } from '@ant-design/icons';
-import { logoutAPI } from '@/services/api';
+import { logoutAPI } from '@/services/api/auth/auth.api';
 
 const AppHeader = (props: any) => {
     const [openDrawer, setOpenDrawer] = useState(false);
