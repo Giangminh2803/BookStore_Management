@@ -71,6 +71,10 @@ declare global {
         updatedAt: Date
     }
 
+    interface ICategory{
+        name: string[]
+    }
+
     interface IBookTable {
         _id: string
         thumbnail: string
