@@ -1,6 +1,11 @@
 import { deleteBooksAPI, getBooksAPI } from "@/services/api/book/book.api";
 import { FORMATE_DATE } from "@/services/helper";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExportOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { App, Button, Popconfirm } from "antd";
@@ -9,6 +14,7 @@ import { useRef, useState } from "react";
 import DetailBook from "./detail.book";
 import ModalAddBook from "./modal/create.book";
 import ModalUpdateBook from "./modal/update.book";
+import { CSVLink } from "react-csv";
 
 const TableBook = () => {
   const actionRef = useRef<ActionType>();
@@ -17,6 +23,7 @@ const TableBook = () => {
   const [openAdd, setOpenAdd] = useState<boolean>(false);
   const [openUpdate, setOpenUpdate] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<IBookTable | null>(null);
+  const [dataCurrentTable, setDataCurrentTable] = useState<IBookTable[]>([]);
   const [meta, setMeta] = useState({
     current: 1,
     pageSize: 5,
@@ -32,7 +39,7 @@ const TableBook = () => {
   const handleUpdateBook = (data: IBookTable) => {
     setOpenUpdate(true);
     setDataUpdate(data);
-  }
+  };
   const confirmDeleteBook = async (id: string) => {
     const res = await deleteBooksAPI(id);
     if (res.data) {
@@ -134,8 +141,18 @@ const TableBook = () => {
   ];
   return (
     <>
-    <ModalUpdateBook openModal={openUpdate} setOpenModal={setOpenUpdate} reloadTable={reloadTable} item={dataUpdate} setItem={setDataUpdate} />
-      <ModalAddBook openModal={openAdd} setOpenModal={setOpenAdd} reloadTable={reloadTable} />
+      <ModalUpdateBook
+        openModal={openUpdate}
+        setOpenModal={setOpenUpdate}
+        reloadTable={reloadTable}
+        item={dataUpdate}
+        setItem={setDataUpdate}
+      />
+      <ModalAddBook
+        openModal={openAdd}
+        setOpenModal={setOpenAdd}
+        reloadTable={reloadTable}
+      />
       <DetailBook
         openDetail={openDetail}
         setOpenDetail={setOpenDetail}
@@ -170,7 +187,7 @@ const TableBook = () => {
           const res = await getBooksAPI(query);
           if (res.data) {
             setMeta(res.data.meta);
-           
+            setDataCurrentTable(res.data?.result);
           }
 
           return {
@@ -206,6 +223,14 @@ const TableBook = () => {
         dateFormatter="string"
         headerTitle="Table Book"
         toolBarRender={() => [
+          <CSVLink
+            data={dataCurrentTable}
+            filename={`export-${dayjs().format(FORMATE_DATE)}-book`}
+          >
+            <Button key="button" icon={<ExportOutlined />} type="primary">
+              Export
+            </Button>
+          </CSVLink>,
           <Button
             key="button"
             icon={<PlusOutlined />}

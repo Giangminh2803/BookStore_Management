@@ -235,19 +235,16 @@ const TableUser = () => {
         dateFormatter="string"
         headerTitle="Table user"
         toolBarRender={() => [
-          <Button
-            key="button"
-            icon={<ExportOutlined />}
-            type="primary"
+          <CSVLink
+            data={dataCurrentTable}
+            filename={`export-${dayjs().format(FORMATE_DATE)}-user`}
           >
-            <CSVLink
-              data={dataCurrentTable}
-              filename={`export-${dayjs().format(FORMATE_DATE)}-user`}
-            >
+            <Button key="button" icon={<ExportOutlined />} type="primary">
               {" "}
               Export
-            </CSVLink>
-          </Button>,
+            </Button>
+          </CSVLink>,
+
           <Button
             key="button"
             icon={<ImportOutlined />}
