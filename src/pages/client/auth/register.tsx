@@ -31,7 +31,7 @@ const RegisterPage = () => {
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
     errorInfo
   ) => {
-    "Failed:", errorInfo;
+     errorInfo;
   };
   return (
     <div className="flex justify-center mt-5">

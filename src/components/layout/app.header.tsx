@@ -9,7 +9,7 @@ import { useCurrentApp } from 'components/context/app.context';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { logoutAPI } from '@/services/api/auth/auth.api';
 
-const AppHeader = (props: any) => {
+const AppHeader = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
 
     const { isAuthenticated, user, setUser, setIsAuthenticated } = useCurrentApp();
@@ -57,7 +57,7 @@ const AppHeader = (props: any) => {
 
     const contentPopover = () => {
         return (
-            <div className='pop-cart-body'>
+            <div className='pop-cart-body ' >
                 {/* <div className='pop-cart-content'>
                     {carts?.map((book, index) => {
                         return (
@@ -85,8 +85,8 @@ const AppHeader = (props: any) => {
     }
     return (
         <>
-            <div className='header-container'>
-                <header className="page-header">
+            <div className='header-container bg-white '>
+                <header className="page-header justify-center">
                     <div className="page-header__top">
                         <div className="page-header__toggle" onClick={() => {
                             setOpenDrawer(true)

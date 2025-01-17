@@ -4,9 +4,9 @@ import AppHeader from "components/layout/app.header";
 
 function Layout() {
   return (
-    <div>
+    <div style={{backgroundColor: '#eaeaea'}}>
       <AppHeader />
-      <Outlet />
+      <Outlet/>
     </div>
   )
 }

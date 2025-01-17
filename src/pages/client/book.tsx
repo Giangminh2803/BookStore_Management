@@ -1,9 +1,12 @@
-const BookPage = () => {
-    return(
-        <>
-        BookPage
-        </>
-    )
-}
+import BookDetail from "@/components/client/book/book.detail";
+import { useState } from "react";
 
-export default BookPage
+const BookPage = () => {
+    const [item, setItem] = useState<IBookTable | null>(null)
+    
+  return (
+    <BookDetail item={item} />
+  );
+};
+
+export default BookPage;

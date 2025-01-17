@@ -28,7 +28,7 @@ export const AppProvider = (props: IProps) => {
         setUser(res.data.user);
         setIsAuthenticated(true);
       }
-      setIsAppLoading(false)(res);
+      setIsAppLoading(false);
     };
     fetchAccount();
   }, []);
