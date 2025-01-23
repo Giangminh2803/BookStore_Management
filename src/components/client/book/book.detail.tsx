@@ -4,13 +4,14 @@ import {
   PlusOutlined,
   ShoppingCartOutlined,
 } from "@ant-design/icons";
-import { Button, Col, InputNumber, Rate, Row } from "antd";
+import { App, Button, Col, InputNumber, Rate, Row } from "antd";
 import { InputNumberProps } from "antd/lib";
 import { useEffect, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/scss/image-gallery.scss";
 import { useParams } from "react-router-dom";
 import BookLoading from "./book.loading";
+import { useCurrentApp } from "@/components/context/app.context";
 
 interface IProps {
   item: IBookTable | null;
@@ -25,6 +26,8 @@ const BookDetail = (props: IProps) => {
   const [total, setTotal] = useState<number>(1);
   const [images, setImages] = useState<IImage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const {carts, setCarts} = useCurrentApp()
+  const {message} = App.useApp()
   useEffect(() => {
     const fetchABook = async () => {
       if (id) {
@@ -68,6 +71,34 @@ const BookDetail = (props: IProps) => {
     setTotal(value as number);
     console.log(total);
   };
+  const handleAddToCart = () => {
+    const cartStorage = localStorage.getItem("carts")
+    if(cartStorage && item){
+        const carts = JSON.parse(cartStorage) as ICart[]
+        let isExistIndex = carts.findIndex(c => c._id === item._id)
+        if(isExistIndex > -1){
+            carts[isExistIndex].quantity = carts[isExistIndex].quantity + total
+        }else{
+            carts.push({
+                quantity: total,
+                _id: item._id,
+                detail: item
+            })
+        }
+        localStorage.setItem("carts", JSON.stringify(carts))
+        setCarts(carts)
+    }else{
+        const data = [{
+            _id: item?._id!,
+            quantity: total,
+            detail: item!
+        }]
+        localStorage.setItem("carts", JSON.stringify(data))
+
+        setCarts(data)
+    }
+    message.success('Thêm vào giỏ hàng thành công!')
+  }
 
   return (
     <div
@@ -131,6 +162,7 @@ const BookDetail = (props: IProps) => {
                     color="default"
                     variant="outlined"
                     icon={<ShoppingCartOutlined />}
+                    onClick={() => handleAddToCart()}
                   >
                     Thêm vào giỏ hàng
                   </Button>

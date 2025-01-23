@@ -9,7 +9,7 @@ export const getBookAPI = (id: string) => {
   const urlBackend = `/api/v1/book/${id}`;
   return axios.get<IBackendRes<IBookTable>>(urlBackend, {
     headers: {
-      delay: 3000
+      delay: 500
     }
   });
 };
